@@ -5,7 +5,7 @@ Take the keys of a table and compile as many typst documents as there are rows. 
 
 ## Dependencies
 
-[Typst](https://typst.app/#start) comptiler must be installed on your system. You can find it how to do it [here](https://github.com/typst/typst).
+[Typst](https://typst.app/#start) comptiler must be installed on your system. You can find how to do it [here](https://github.com/typst/typst).
 
 ## To do
 - [x] name default newly created folder after the name of the .typ file.
