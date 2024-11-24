@@ -26,15 +26,24 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '-n',
-    '--name',
-    help="Column by which each file fill take it's name."
+    '-k',
+    '--keyname',
+    help="Column by which each file fill take it's name.",
+    default=""
 )
 
 parser.add_argument(
     '-v',
     '--verbose',
     action='store_true'
+)
+
+parser.add_argument(
+    '-e',
+    '--extention',
+    help="Type of compiled file. Typically pdf or svg.",
+    default='.pdf',
+    choices=['.pdf', '.svg']
 )
 
 args = parser.parse_args()
@@ -88,37 +97,43 @@ def load_file(file_path: str) -> pd.DataFrame:
     else:
         raise ValueError(f"Unsupported file type: {file_extension}")
 
-# Example usage
-file_path = 'example.xlsx'
-df = load_file(file_path)
-print(df.head())
-
-def main():
-    
-    df = load_file(args.xlsx_file)
-    df = df.to_dict(orient='records')
-
-    args.output = output_dir_format(args.output)
+def create_directory(output_dir:str):
     try:
-        os.mkdir(args.output)
-        print(f"Nested directories '{args.output}' created successfully.")
+        os.mkdir(output_dir)
+        print(f"Directory '{output_dir}' created successfully.")
     except FileExistsError:
-        print(f"One or more directories in '{args.output}' already exist.")
+        print(f"Directory '{output_dir}' already exists.")
     except PermissionError:
-        print(f"Permission denied: Unable to create '{args.output}'.")
+        print(f"Permission denied: Unable to create '{output_dir}'.")
     except Exception as e:
         print(f"An error occurred: {e}")
 
 
+def main():
+    
+    df = load_file(args.table_file)
+    df.dropna(how='all', inplace=True)
+    df = df.to_dict(orient='records')
+
+    file_name_key = args.keyname
+    is_verbose = args.verbose
     typst_file = args.typst_file
-    output_file = args.output
+    extention = args.extention
+    output_dir = output_dir_format(args.output)
 
+    create_directory(output_dir)
+    typst_name = os.path.splitext(os.path.basename(typst_file))[0] if file_name_key == "" else ""
 
-    list_compile = [typst_compile_line(dict_line.keys(), dict_line.values(), typst_file, output_file + str(enum) + '.pdf') for enum, dict_line in enumerate(df)]
-    for line in list_compile:
-        if not args.verbose:
-            print(line)
-        os.system(line)
+    for enum, dict_line in enumerate(df):
+        name = dict_line[file_name_key] if file_name_key != "" else typst_name
+        output_file = output_dir + name + "_" + str(enum) + extention
+
+        compile_line = typst_compile_line(dict_line.keys(), dict_line.values(), typst_file, output_file)
+
+        if not is_verbose:
+            print(compile_line)
+
+        os.system(compile_line)
 
 if __name__ == "__main__":
 
