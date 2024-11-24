@@ -1,5 +1,6 @@
 # TypstList
 
+Take the keys of a table and compile as many typst documents as there are rows. These key=value are made available to the compiler as sys.inputs. See [sys.inputs](https://typst.app/docs/reference/foundations/sys).
 
 
 ## Dependencies

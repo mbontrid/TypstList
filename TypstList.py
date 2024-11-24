@@ -5,7 +5,10 @@ import os
 
 
 parser = argparse.ArgumentParser(
-    description='For each line of a xlsx file, compile a typst document with collumns as keys an collumns  arguments.'
+    description='Take the keys of a table and compile as many typst documents as there are rows. \
+        These key=value are made available to the compiler as sys.inputs. \
+        See [sys.inputs](https://typst.app/docs/reference/foundations/sys).\
+        For each rows of a table, compile a typst document with an collumns keys  arguments.'
 )
 
 parser.add_argument(
