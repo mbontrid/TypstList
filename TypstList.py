@@ -122,10 +122,15 @@ def main():
     output_dir = output_dir_format(args.output)
 
     create_directory(output_dir)
-    typst_name = os.path.splitext(os.path.basename(typst_file))[0] if file_name_key == "" else ""
 
     for enum, dict_line in enumerate(df):
-        name = dict_line[file_name_key] if file_name_key != "" else typst_name
+
+        name = ""
+        try:
+            name = dict_line[file_name_key]
+        except KeyError:
+            name = os.path.splitext(os.path.basename(typst_file))[0]
+
         output_file = output_dir + name + "_" + str(enum) + extention
 
         compile_line = typst_compile_line(dict_line.keys(), dict_line.values(), typst_file, output_file)
