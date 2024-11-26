@@ -2,8 +2,6 @@ import pandas as pd
 import argparse
 import os
 
-
-
 parser = argparse.ArgumentParser(
     description='Take the keys of a table and compile as many typst documents as there are rows. \
         These key=value are made available to the compiler as sys.inputs. \
@@ -49,8 +47,14 @@ parser.add_argument(
     choices=['.pdf', '.svg']
 )
 
-args = parser.parse_args()
+parser.add_argument(
+    '-s',
+    '--sheetname',
+    help="Sheet name to read from in an Excel file.",
+    default=None
+)
 
+args = parser.parse_args()
 
 def output_dir_format(output_dir:str):
     if output_dir[-1] != '/':
@@ -60,10 +64,8 @@ def output_dir_format(output_dir:str):
 def escape_char(value: str) -> str:
     # Escape characters for Python
     value = value.replace("\\", "\\\\").replace("'", "\\'").replace("\"", "\\\"")
-    
     # Escape characters for Bash
     value = value.replace("$", "\\$").replace("`", "\\`").replace("!", "\\!")
-    
     return value
 
 def typ_arg_input(key, value) -> str:
@@ -83,14 +85,13 @@ def typst_compile_line(keys:list[str], values:list[str], typst_file: str, output
 
     return command + ' ' + arg_inputs + typst_file + ' ' + output_file
 
-
-def load_file(file_path: str) -> pd.DataFrame:
+def load_file(file_path: str, sheet_name: str = None) -> pd.DataFrame:
     file_extension = os.path.splitext(file_path)[1].lower()
     
     if file_extension == '.csv':
         return pd.read_csv(file_path)
     elif file_extension == '.xlsx' or file_extension == '.xls':
-        return pd.read_excel(file_path)
+        return pd.read_excel(file_path, sheet_name=sheet_name)
     elif file_extension == '.json':
         return pd.read_json(file_path)
     elif file_extension == '.html':
@@ -111,10 +112,8 @@ def create_directory(output_dir:str):
     except Exception as e:
         print(f"An error occurred: {e}")
 
-
 def main():
-    
-    df = load_file(args.table_file)
+    df = load_file(args.table_file, sheet_name=args.sheetname)
     df.dropna(how='all', inplace=True)
     df = df.to_dict(orient='records')
 
@@ -127,7 +126,6 @@ def main():
     create_directory(output_dir)
 
     for enum, dict_line in enumerate(df):
-
         name = ""
         try:
             name = dict_line[file_name_key]
@@ -144,5 +142,4 @@ def main():
         os.system(compile_line)
 
 if __name__ == "__main__":
-
     main()
