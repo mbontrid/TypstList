@@ -19,4 +19,5 @@ uv sync
 - [x] read from a specific sheet of a excel file.
 - [ ] add global sys input by CLI option. Example for date time.
 - [ ] make equation in $$ available to the compiler.
+- [ ] add example.
 
